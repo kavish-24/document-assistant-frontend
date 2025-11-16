@@ -70,43 +70,108 @@ export default function FileUpload({ onUpload, disabled }: FileUploadProps) {
         onDragOver={handleDrag}
         onDrop={handleDrop}
         style={{
-          border: `2px dashed ${dragActive ? '#667eea' : '#d1d5db'}`,
-          borderRadius: '8px',
-          padding: '3rem',
+          border: `3px dashed ${dragActive ? '#667eea' : '#d1d5db'}`,
+          borderRadius: '16px',
+          padding: '4rem 2rem',
           textAlign: 'center',
-          backgroundColor: dragActive ? '#f3f4f6' : 'transparent',
-          transition: 'all 0.3s ease',
-          marginBottom: '1rem',
+          backgroundColor: dragActive ? 'rgba(102, 126, 234, 0.05)' : 'transparent',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          marginBottom: '1.5rem',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <input
-          id="file-input"
-          type="file"
-          accept=".pdf,.docx,.pptx"
-          onChange={handleChange}
-          className="file-input"
-          disabled={disabled}
-        />
-        <label htmlFor="file-input" className="file-input-label">
-          Choose File or Drag & Drop
-        </label>
-        <p style={{ marginTop: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
-          Supported formats: PDF, DOCX, PPTX
-        </p>
-        {selectedFile && (
-          <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#dbeafe', borderRadius: '8px' }}>
-            <strong>Selected:</strong> {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
-          </div>
+        {dragActive && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+            animation: 'pulse 1.5s ease-in-out infinite',
+          }} />
         )}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ 
+            fontSize: '4rem', 
+            marginBottom: '1rem',
+            filter: 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1))',
+            animation: dragActive ? 'pulse 1s ease-in-out infinite' : 'none'
+          }}>
+            📤
+          </div>
+          <input
+            id="file-input"
+            type="file"
+            accept=".pdf,.docx,.pptx"
+            onChange={handleChange}
+            className="file-input"
+            disabled={disabled}
+          />
+          <label htmlFor="file-input" className="file-input-label" style={{ position: 'relative', zIndex: 2 }}>
+            <span>📁</span>
+            <span>Choose File or Drag & Drop</span>
+          </label>
+          <p style={{ 
+            marginTop: '1.5rem', 
+            color: '#6b7280', 
+            fontSize: '0.9375rem',
+            fontWeight: '500'
+          }}>
+            Supported formats: <strong>PDF</strong>, <strong>DOCX</strong>, <strong>PPTX</strong>
+          </p>
+          {selectedFile && (
+            <div style={{ 
+              marginTop: '1.5rem', 
+              padding: '1rem 1.25rem', 
+              background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)', 
+              borderRadius: '12px',
+              border: '2px solid #93c5fd',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              animation: 'slideUp 0.3s ease-out'
+            }}>
+              <span style={{ fontSize: '1.5rem' }}>✅</span>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontWeight: '600', color: '#1e40af', marginBottom: '0.25rem' }}>
+                  {selectedFile.name}
+                </div>
+                <div style={{ fontSize: '0.875rem', color: '#3b82f6' }}>
+                  {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       {selectedFile && (
         <button
           onClick={handleSubmit}
           disabled={disabled}
           className="btn btn-primary"
-          style={{ width: '100%' }}
+          style={{ width: '100%', fontSize: '1rem', padding: '1rem' }}
         >
-          {disabled ? 'Uploading...' : 'Upload File'}
+          {disabled ? (
+            <>
+              <span className="loading-spinner" style={{
+                width: '16px',
+                height: '16px',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
+                borderTopColor: 'white',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+                display: 'inline-block'
+              }} />
+              <span>Uploading...</span>
+            </>
+          ) : (
+            <>
+              <span>🚀</span>
+              <span>Upload File</span>
+            </>
+          )}
         </button>
       )}
     </div>

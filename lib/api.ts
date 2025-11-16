@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { supabase, SupabaseFile } from './supabase';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -79,5 +80,81 @@ export const deleteFile = async (filename: string): Promise<{ message: string }>
 export const summarizeDocument = async (filename: string): Promise<{ filename: string; summary: string }> => {
   const response = await api.post<{ filename: string; summary: string }>('/summarize/', { filename });
   return response.data;
+};
+
+// ============================================
+// SUPABASE FUNCTIONS FOR VIEW DOCUMENTS
+// ============================================
+
+// List all files from Supabase bucket
+export const listSupabaseFiles = async (): Promise<SupabaseFile[]> => {
+  try {
+    const { data, error } = await supabase.storage
+      .from('files')
+      .list('', {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'created_at', order: 'desc' },
+      });
+
+    if (error) {
+      console.error('Error listing files:', error);
+      throw error;
+    }
+
+    return (data || []).map((file) => ({
+      name: file.name,
+      id: file.id || file.name,
+      created_at: file.created_at,
+      updated_at: file.updated_at,
+      metadata: file.metadata,
+    }));
+  } catch (error) {
+    console.error('Failed to list Supabase files:', error);
+    throw error;
+  }
+};
+
+// Get signed URL for a file (for viewing)
+export const getSignedUrl = async (filename: string, expiresIn: number = 3600): Promise<string> => {
+  try {
+    const { data, error } = await supabase.storage
+      .from('files')
+      .createSignedUrl(filename, expiresIn);
+
+    if (error) {
+      console.error('Error creating signed URL:', error);
+      throw error;
+    }
+
+    if (!data?.signedUrl) {
+      throw new Error('No signed URL returned');
+    }
+
+    return data.signedUrl;
+  } catch (error) {
+    console.error('Failed to get signed URL:', error);
+    throw error;
+  }
+};
+
+// Get file metadata
+export const getFileMetadata = async (filename: string) => {
+  try {
+    const { data, error } = await supabase.storage
+      .from('files')
+      .list('', {
+        search: filename,
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    return data?.[0] || null;
+  } catch (error) {
+    console.error('Failed to get file metadata:', error);
+    throw error;
+  }
 };
 

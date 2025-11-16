@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import Sidebar from '@/components/layout/Sidebar';
+import { ViewProvider } from '@/lib/store/ViewContext';
 
 export const metadata: Metadata = {
   title: 'Document Assistant',
@@ -13,7 +15,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ViewProvider>
+          <div className="app-layout">
+            <Sidebar />
+            <main className="main-content">
+              {children}
+            </main>
+          </div>
+        </ViewProvider>
+      </body>
     </html>
   );
 }
